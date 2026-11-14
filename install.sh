@@ -104,9 +104,7 @@ place() {
 link_to() {
   local src="$1" dest="$2"
   save "$dest"
-  rm -rf -- "$dest"
-  mkdir -p "$(dirname "$dest")"
-  ln -s "$src" "$dest"
+  swap_in_link "$src" "$dest"
 }
 
 # Copy or link, depending on the mode.

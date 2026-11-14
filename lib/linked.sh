@@ -31,6 +31,23 @@ linked_paths() {
   printf '%s\t%s\n' "$repo/omarchy/shell.json" "$HOME/.config/omarchy/shell.json"
 }
 
+# Point dest at src. A file is swapped for the link in one rename, so a
+# program watching it (the shell watches shell.json) never sees it missing;
+# deleting first and linking after left the running shell rebuilding its bar.
+# A folder can't be renamed over, so it's removed first.
+swap_in_link() {
+  local src="$1" dest="$2" tmp
+  mkdir -p "$(dirname "$dest")"
+  if [[ -d $dest && ! -L $dest ]]; then
+    rm -rf -- "$dest"
+    ln -s "$src" "$dest"
+    return
+  fi
+  tmp="$(dirname "$dest")/.$(basename "$dest").link-$$"
+  ln -sfn "$src" "$tmp"
+  mv -Tf "$tmp" "$dest"
+}
+
 # Copied in both modes.
 copied_paths() {
   local repo="$1"

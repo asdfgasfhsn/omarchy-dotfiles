@@ -93,14 +93,12 @@ for entry in "${replaced[@]}"; do
   rm -rf -- "$src"
   cp -a "$dest" "$src"
   find "$src" -name __pycache__ -prune -exec rm -rf {} + 2>/dev/null || true
-  rm -rf -- "$dest"
-  ln -s "$src" "$dest"
+  swap_in_link "$src" "$dest"
   echo "Took the live copy and linked again: ${dest/#$HOME/\~}"
 done
 for entry in "${missing[@]}"; do
   IFS=$'\t' read -r src dest <<<"$entry"
-  mkdir -p "$(dirname "$dest")"
-  ln -s "$src" "$dest"
+  swap_in_link "$src" "$dest"
   echo "Linked: ${dest/#$HOME/\~}"
 done
 echo

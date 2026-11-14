@@ -54,6 +54,13 @@ use, but don't remove `denon.bar`.
 - `omarchy plugin list` reports bar-widget plugins as `enabled` only when
   they're placed in the bar, so `denon.menu` shows `false` while working.
 - Never edit `~/.config/hypr/monitors.lua`; the installer leaves it alone.
+- Never delete `~/.config/omarchy/shell.json` and recreate it while the shell
+  runs: the shell watches it, and seeing it vanish left the bar half-drawn and
+  rebuilding until `omarchy restart shell`. Swap it in one rename
+  (`swap_in_link` in `lib/linked.sh`) or edit it in place.
+- `omarchy restart shell` resets world-clock cities you added: Omarchy's
+  Elsewhen widget seeds its defaults over them at startup (an Omarchy bug, not
+  the links).
 
 ## Tests
 
