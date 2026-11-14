@@ -208,7 +208,9 @@ chip), and leaves your real shell, config and state alone.
 }
 ```
 
-Without it, both say OMARCHY. The big fastfetch logo is Omarchy's own `~/.config/omarchy/branding/about.txt`, so replace that file to change the logo.
+Without it, both say OMARCHY.
+
+**Menu placement.** Super + Space opens a Spotlight-style search bar about a fifth of the way down the screen. Results drop down as you type, and Down shows the categories. To have it rise out of the bottom frame as a drawer instead, add `"placement": "drawer"` to the same `root` entry, and add `omarchy-menu` back to the `denon-shell-drawers` xray rule in `hypr/looknfeel.lua`. The big fastfetch logo is Omarchy's own `~/.config/omarchy/branding/about.txt`, so replace that file to change the logo.
 
 **Bar layout.** `~/.config/omarchy/shell.json` decides which widgets sit where. Remove any you don't want (for example `denon.dropbox` or `denon.agents`).
 

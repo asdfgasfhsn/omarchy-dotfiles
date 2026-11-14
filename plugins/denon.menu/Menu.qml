@@ -31,6 +31,10 @@ Item {
     // whole; reading it again here keeps the menu from opening empty.
     if (root.defaultMenuItems.length === 0) defaultMenuFile.reload()
 
+    // Spotlight: resting the pointer on the bottom frame doesn't open a card
+    // at the top of the screen. A click on that strip still does.
+    if (payload.hover === true && root.spotlight && !root.opened) return
+
     if (payload.mode === "select" || payload.mode === "input") {
       root.hoverOpened = false
       root.openDmenu(payload)
@@ -125,12 +129,38 @@ Item {
   // drawer (no scrim, no floating shadow, the shell's own surface, concave
   // necks into the frame), centred on the window area. Off for other bars.
   readonly property var shellBar: Motion.PanelMotion.bar && Motion.PanelMotion.bar.shellMode === true ? Motion.PanelMotion.bar : null
-  readonly property bool attached: !!shellBar
+  readonly property bool pebbleShell: !!shellBar
+  // Where the menu appears under Pebble Shell. Set in the extension file:
+  //   "root": { "placement": "drawer" }
+  //   "spotlight" (default): a floating frosted card about a fifth of the way
+  //     down, macOS Spotlight style. It opens as a bare search bar, results
+  //     drop down as you type, and Down shows the categories.
+  //   "drawer": rises out of the bottom frame like the rail drawers.
+  readonly property string placement: (root.item("root") && root.item("root").placement === "drawer") ? "drawer" : "spotlight"
+  readonly property bool attached: pebbleShell && placement === "drawer"
+  readonly property bool spotlight: pebbleShell && placement === "spotlight"
+  // Spotlight: Down on the bare search bar shows the categories.
+  property bool browsing: false
+  // Spotlight with nothing typed and nothing being browsed: just the bar.
+  readonly property bool spotlightIdle: spotlight && !dmenuActive && activeMenu === "root" && !filterText && !browsing
+  readonly property real spotlightTopRatio: 0.2
+  readonly property int spotlightWidth: Style.space(640)
+  // Its own surface rather than the shell's: opaque enough to clear the
+  // blur rule's ignore_alpha (0.5, looknfeel.lua) so it's always frosted.
+  // On dark themes it's lifted a step toward the text colour and outlined
+  // with a faint light hairline, so it stands off dark windows the way
+  // Spotlight does.
+  readonly property bool spotlightLight: Commons.Color.background.hslLightness > 0.5
+  readonly property color spotlightSurface: {
+    var bg = Commons.Color.background, ink = root.foreground, lift = spotlightLight ? 0 : 0.08
+    return Qt.rgba(bg.r + (ink.r - bg.r) * lift, bg.g + (ink.g - bg.g) * lift, bg.b + (ink.b - bg.b) * lift, spotlightLight ? 0.8 : 0.74)
+  }
+  readonly property color spotlightHairline: spotlightLight ? Qt.rgba(0, 0, 0, 0.1) : Qt.rgba(1, 1, 1, 0.14)
   // Tide list (Pebble Shell only): Studio's card language — a big light
   // prompt, hairline icons, an accent bar + accent text for the selection,
   // nothing boxed. Top-level sections get Lucide line icons (icons/); deeper
   // rows keep their glyphs, drawn bare.
-  readonly property bool tide: attached
+  readonly property bool tide: pebbleShell
   // id → icon file stem in icons/. Omarchy 4.5 renamed Style to Appearance;
   // both names draw the same icon.
   readonly property var lineIcons: ({ apps: "apps", learn: "learn", trigger: "trigger", style: "style", appearance: "style", setup: "setup", install: "install", remove: "remove", update: "update", about: "about", system: "system", paper: "paper" })
@@ -138,7 +168,7 @@ Item {
   readonly property color tideAccent: Commons.Color.background.hslLightness < 0.5
     ? Qt.hsla(Commons.Color.accent.hslHue, Commons.Color.accent.hslSaturation, Math.max(Commons.Color.accent.hslLightness, 0.62), 1)
     : Commons.Color.accent
-  readonly property color tideSurface: attached ? shellBar.shellSurface : background
+  readonly property color tideSurface: attached ? shellBar.shellSurface : spotlight ? spotlightSurface : background
   property color selectedBackground: Commons.Color.menu.selectedBackground
   property color selectedText: Commons.Color.menu.selectedText
   property color selectedBorder: Commons.Color.menu.selectedBorder
@@ -150,7 +180,7 @@ Item {
   property int headerHeight: tide && !dmenuActive ? Style.space(56) : Math.max(Style.space(34), Style.font.title + Style.spacing.controlPaddingY * 2)
   property int contentSpacing: Style.spacing.md
   // Glass surfaces: key-hint footer under the list (hidden for dmenu prompts).
-  readonly property bool showFooter: !root.dmenuActive
+  readonly property bool showFooter: !root.dmenuActive && !root.spotlightIdle
   readonly property int footerHeight: showFooter ? Style.space(30) : 0
   property int baseRowHeight: tide ? Style.space(44) : Math.max(Style.space(40), Style.font.body + Style.spacing.rowPaddingX * 2)
   property int detailRowHeight: Math.max(Style.space(50), Style.font.body + Style.font.caption + Style.spacing.rowPaddingX * 2)
@@ -165,6 +195,7 @@ Item {
   property int visibleRowsHeight: root.dmenuActive ? dmenuRowListHeight(layoutSerial, displayModel.count, filterText) : rowListHeight(layoutSerial, displayModel.count, filterText, searchDivider)
   property int cardHeight: root.dmenuActive
     ? Math.min(contentMargin * 2 + headerHeight + (mode === "input" ? 0 : contentSpacing + visibleRowsHeight), panel.height - Style.gapsOut * 2)
+    : spotlightIdle ? contentMargin * 2 + headerHeight
     : Math.min(contentMargin * 2 + headerHeight + contentSpacing + visibleRowsHeight + (footerHeight > 0 ? contentSpacing + footerHeight : 0), panel.height - Style.gapsOut * 2)
 
   function finishRequest(selection) {
@@ -205,7 +236,7 @@ Item {
   // Uses panel.cardTop rather than effectiveCardTop: the centered top is
   // derived from the card height, which this value feeds.
   function availableRowsHeight() {
-    var top = panel.cardTop >= 0 ? panel.cardTop : Style.gapsOut
+    var top = root.spotlight ? panel.spotlightTop : panel.cardTop >= 0 ? panel.cardTop : Style.gapsOut
     var available = panel.height - top - Style.gapsOut - root.contentMargin * 2 - root.headerHeight - root.contentSpacing - (root.footerHeight > 0 ? root.contentSpacing + root.footerHeight : 0)
     // The starting menu sets the ceiling along with the offset: drilling into
     // a longer submenu scrolls behind the fold instead of growing the card.
@@ -818,6 +849,8 @@ Item {
     if (!root.item(id)) id = "root"
     if (pushHistory && id !== root.activeMenu) root.navStack = root.navStack.concat([root.activeMenu])
     root.activeMenu = id
+    // Back out of a submenu into the categories, not the bare bar.
+    if (id !== "root") root.browsing = true
     root.filterText = ""
     root.selectedIndex = 0
     root.cursorActive = true
@@ -928,6 +961,7 @@ Item {
     selectionFile = ""
     doneFile = ""
     activeMenu = root.item(initialMenu) ? initialMenu : "root"
+    browsing = false
     navStack = []
     filterText = ""
     selectedIndex = 0
@@ -1158,17 +1192,21 @@ Item {
     // centre on a 420 ms OutBack (overshoot 1.25), fading in as it goes;
     // it tucks back in 150 ms. Interruptible: the Behavior retargets.
     property real reveal: want ? 1 : 0
+    // Spotlight: a quick fade while scaling up from 96 % about the search
+    // bar, no overshoot; a faster fade out.
     Behavior on reveal {
-      enabled: root.attached
+      enabled: root.attached || root.spotlight
       NumberAnimation {
-        duration: panel.want ? 420 : 150
-        easing.type: panel.want ? Easing.OutBack : Easing.InCubic
+        duration: root.spotlight ? (panel.want ? 180 : 120) : (panel.want ? 420 : 150)
+        easing.type: panel.want ? (root.spotlight ? Easing.OutCubic : Easing.OutBack) : Easing.InCubic
         easing.overshoot: 1.25
       }
     }
     readonly property real popY: 0.82 + 0.18 * reveal
     readonly property real popX: 0.94 + 0.06 * reveal
-    visible: root.attached ? (want || reveal > 0.001) : want
+    readonly property real spotlightScale: 0.96 + 0.04 * reveal
+    readonly property int spotlightTop: Math.round(height * root.spotlightTopRatio)
+    visible: (root.attached || root.spotlight) ? (want || reveal > 0.001) : want
     anchors { top: true; bottom: true; left: true; right: true }
     color: "transparent"
     WlrLayershell.namespace: "omarchy-menu"
@@ -1187,6 +1225,7 @@ Item {
     readonly property int centeredTop: Math.max(Style.gapsOut, Math.round((height - root.cardHeight) / 2))
     readonly property int effectiveCardTop: cardTop >= 0 ? cardTop : centeredTop
     function freezeCardTop() {
+      if (root.spotlight) return
       if (visible && cardTop < 0) {
         cardTop = effectiveCardTop
         maxRowsHeight = root.visibleRowsHeight
@@ -1196,7 +1235,7 @@ Item {
 
     Rectangle {
       anchors.fill: parent
-      color: root.attached ? "transparent" : root.scrim
+      color: (root.attached || root.spotlight) ? "transparent" : root.scrim
     }
 
     MouseArea {
@@ -1275,31 +1314,35 @@ Item {
 
     BorderSurface {
       id: card
-      readonly property real holeCenter: root.attached
+      readonly property real holeCenter: root.pebbleShell
         ? (root.shellBar.position === "right" ? root.shellBar.frameThickness + (panel.width - root.shellBar.railWidth - root.shellBar.frameThickness) / 2
                                               : root.shellBar.railWidth + (panel.width - root.shellBar.railWidth - root.shellBar.frameThickness) / 2)
         : panel.width / 2
       readonly property real fullHeight: root.attached
         ? Math.min(root.cardHeight + Style.space(8), Math.round(stage.height * 0.78))
+        : root.spotlight ? Math.min(root.cardHeight, panel.height - Style.gapsOut - panel.spotlightTop)
         : Math.min(root.cardHeight, panel.height - Style.gapsOut - panel.effectiveCardTop)
-      width: root.attached ? Math.max(root.cardWidth + Style.space(24), Math.min(Style.space(520), panel.width - Style.space(200))) : root.cardWidth
+      width: root.attached ? Math.max(root.cardWidth + Style.space(24), Math.min(Style.space(520), panel.width - Style.space(200)))
+        : root.spotlight ? Math.max(root.cardWidth, Math.min(root.spotlightWidth, panel.width - Style.space(120)))
+        : root.cardWidth
       height: fullHeight
       // Attached: submenus and search results resize the drawer smoothly
       // instead of snapping its top edge (only while it is fully out).
       Behavior on height {
-        enabled: root.attached && panel.want && panel.reveal > 0.98
+        enabled: (root.attached || root.spotlight) && panel.want && panel.reveal > 0.98
         NumberAnimation { duration: 230; easing.type: Easing.OutCubic }
       }
-      radius: root.attached ? Style.space(28) : root.cornerRadius
+      radius: root.attached ? Style.space(28) : root.spotlight ? Style.space(24) : root.cornerRadius
       x: Math.round(holeCenter - width / 2)
-      y: root.attached ? stage.height - height : panel.effectiveCardTop
+      y: root.attached ? stage.height - height : root.spotlight ? panel.spotlightTop : panel.effectiveCardTop
       transform: Scale {
-        origin.x: card.width / 2; origin.y: card.height
-        xScale: root.attached ? panel.popX : 1; yScale: root.attached ? panel.popY : 1
+        origin.x: card.width / 2; origin.y: root.spotlight ? root.headerHeight / 2 : card.height
+        xScale: root.attached ? panel.popX : root.spotlight ? panel.spotlightScale : 1
+        yScale: root.attached ? panel.popY : root.spotlight ? panel.spotlightScale : 1
       }
-      opacity: root.attached ? Math.max(0, Math.min(1, panel.reveal)) : 1
-      color: root.attached ? "transparent" : root.background
-      borderSpec: root.attached ? Border.none() : root.borderSpec
+      opacity: (root.attached || root.spotlight) ? Math.max(0, Math.min(1, panel.reveal)) : 1
+      color: root.attached ? "transparent" : root.spotlight ? root.spotlightSurface : root.background
+      borderSpec: root.attached ? Border.none() : root.spotlight ? Border.flat(root.spotlightHairline, 1) : root.borderSpec
       padding: root.contentMargin + (root.attached ? Style.space(8) : 0)
 
       MouseArea { anchors.fill: parent; onPressed: root.hoverOpened = false; onClicked: {} }
@@ -1333,6 +1376,11 @@ Item {
             event.accepted = true
           } else if (event.key === Qt.Key_Up) {
             root.select(-1)
+            event.accepted = true
+          } else if (event.key === Qt.Key_Down && root.spotlightIdle) {
+            root.browsing = true
+            root.selectedIndex = 0
+            root.cursorActive = true
             event.accepted = true
           } else if (event.key === Qt.Key_Down) {
             root.select(1)
@@ -1469,14 +1517,16 @@ Item {
             anchors.leftMargin: root.tide ? Style.space(4) : 0
             anchors.rightMargin: root.tide ? Style.space(4) : 0
             height: 1
+            visible: !root.spotlightIdle
             color: Util.alpha(root.foreground, root.tide ? 0.12 : 0.08)
           }
 
         }
 
         Item {
+          visible: !root.spotlightIdle
           width: parent.width
-          height: root.visibleRowsHeight
+          height: visible ? root.visibleRowsHeight : 0
 
           ListView {
             id: resultList

@@ -114,12 +114,14 @@ hl.layer_rule({
   ignore_alpha = 0.5,
 })
 
--- Pebble Shell: drawers and the menu attach to the rail/frame, so they
--- frost the wallpaper like the shell does (xray) instead of the window behind
--- them; otherwise each neck showed a tone step against the rail.
+-- Pebble Shell: drawers attach to the rail/frame, so they frost the
+-- wallpaper like the shell does (xray) instead of the window behind them;
+-- otherwise each neck showed a tone step against the rail.
+-- The menu floats Spotlight-style, so it frosts the windows behind it. With
+-- "placement": "drawer" in omarchy-menu.jsonc, add omarchy-menu back here.
 hl.layer_rule({
   name = "denon-shell-drawers",
-  match = { namespace = "^(denon-bar-panel|omarchy-menu)$" },
+  match = { namespace = "^denon-bar-panel$" },
   xray = true,
 })
 
