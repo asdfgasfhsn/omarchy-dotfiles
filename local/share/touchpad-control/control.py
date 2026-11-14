@@ -103,6 +103,8 @@ def render(values):
 
 
 def atomic_write(path, content):
+    # Write through a symlink (a linked install) instead of replacing it.
+    path = Path(os.path.realpath(path))
     path.parent.mkdir(parents=True, exist_ok=True)
     fd, temporary = tempfile.mkstemp(prefix="." + path.name + ".", dir=path.parent)
     try:

@@ -140,6 +140,31 @@ Paste this repository's link into your coding agent (Claude Code, Codex and so o
 
 Don't copy files into `~/.config` by hand or edit `hypr/monitors.lua`. The installer backs up everything it replaces; hand edits skip that.
 
+### Linked install (for working on the dots)
+
+`./install.sh --link` symlinks the plugins, helpers, Hyprland config, fastfetch,
+foot and `shell.json` back to this repo instead of copying them. Edit the repo,
+then `hyprctl reload` or `omarchy restart shell` to see the change. The Glass
+and Depth drawers' saved state (`hypr/glass.lua`, `hypr/recessed_windows.lua`)
+is still copied, so moving a slider doesn't show up in git. Running
+`./install.sh` without `--link` turns the links back into copies.
+
+Omarchy updates run migrations that edit your config. How they write decides
+what happens to a link:
+
+- Appends and the shell's own saves go through the link, so the change shows up
+  in `git status` here, ready to review and commit.
+- Migrations that write a new file and move it into place (most `shell.json`
+  ones) or use `sed -i` replace the link with a plain file. Nothing warns you.
+
+So after each `omarchy update`, run:
+
+```bash
+./check-links.sh        # lists anything that's no longer a link, with a diff
+./check-links.sh --fix  # takes the live copy into the repo and links it again
+git diff                # review what the update changed
+```
+
 ### Optional apps
 
 These are wired up if they're installed and skipped if not:

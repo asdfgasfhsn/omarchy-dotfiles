@@ -104,6 +104,8 @@ def read():
 
 
 def atomic(path, text):
+    # Write through a symlink (a linked install) instead of replacing it.
+    path = Path(os.path.realpath(path))
     path.parent.mkdir(parents=True, exist_ok=True)
     fd, tmp = tempfile.mkstemp(prefix='.' + path.name, dir=path.parent)
     try:

@@ -4,10 +4,25 @@
 #
 #   ./install.sh          install, asking once before changing anything
 #   ./install.sh --yes    install without asking
+#   ./install.sh --link   symlink files to this repo instead of copying them,
+#                         so edits here are live (see check-links.sh)
 set -euo pipefail
 
 here="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 config="$HOME/.config"
+# shellcheck source=lib/linked.sh
+source "$here/lib/linked.sh"
+
+assume_yes=0
+link=0
+for arg in "$@"; do
+  case "$arg" in
+    --yes) assume_yes=1 ;;
+    --link) link=1 ;;
+    -h|--help) sed -n '2,8p' "$0" | sed 's/^# \{0,1\}//'; exit 0 ;;
+    *) echo "Unknown option: $arg (try --help)" >&2; exit 1 ;;
+  esac
+done
 
 if ! command -v omarchy >/dev/null 2>&1; then
   echo "omarchy not found. These dots need Omarchy (https://omarchy.org)." >&2
@@ -29,7 +44,13 @@ external=(
   "https://github.com/denonmaryland/omarchy-softly io.github.denonmaryland.softly"
 )
 
-if [[ "${1:-}" != "--yes" ]]; then
+if (( link )); then
+  how="symlinked to $here"
+else
+  how="copied"
+fi
+
+if (( ! assume_yes )); then
   cat <<EOF
 This will install into your home folder:
   - 24 shell plugins       -> ~/.config/omarchy/plugins/
@@ -40,7 +61,8 @@ This will install into your home folder:
   - Hello Lock, Theme Studio, Tricky Tiles and Softly from their own GitHub repos
   - one system package if missing: qt6-5compat (asks for your password)
 
-Anything it replaces is backed up to a new folder in ~/.config/omarchy-dotfiles-backup/.
+Files are $how. Anything it replaces is backed up to a new folder in
+~/.config/omarchy-dotfiles-backup/.
 EOF
   read -r -p "Continue? [y/N] " answer || answer=""
   [[ "$answer" == [yY]* ]] || { echo "Nothing changed."; exit 0; }
@@ -63,6 +85,8 @@ backup="$(mktemp -d "$config/omarchy-dotfiles-backup/$(date +%Y%m%d-%H%M%S)-XXXX
 save() {
   local dest="$1" rel="${1#"$HOME"/}"
   [[ -e "$dest" && ! -e "$backup/$rel" ]] || return 0
+  # Already a link into this repo: git has the contents, nothing to save.
+  [[ -L "$dest" && "$(realpath -m "$dest")" == "$here"/* ]] && return 0
   mkdir -p "$backup/$(dirname "$rel")"
   cp -a "$dest" "$backup/$rel"
 }
@@ -76,30 +100,34 @@ place() {
   cp -a "$src" "$dest"
 }
 
+# Replace a file or folder with a symlink to ours, after saving the original.
+link_to() {
+  local src="$1" dest="$2"
+  save "$dest"
+  rm -rf -- "$dest"
+  mkdir -p "$(dirname "$dest")"
+  ln -s "$src" "$dest"
+}
+
+# Copy or link, depending on the mode.
+put() {
+  if (( link )); then link_to "$@"; else place "$@"; fi
+}
+
 # The original bar layout, before `omarchy plugin add --enable` changes it.
 save "$config/omarchy/shell.json"
 
-echo "Installing plugins..."
-for plugin in "$here"/plugins/*/; do
-  place "${plugin%/}" "$config/omarchy/plugins/$(basename "$plugin")"
-done
-
-echo "Installing helpers..."
-for dir in "$here"/local/share/*/; do
-  place "${dir%/}" "$HOME/.local/share/$(basename "$dir")"
-done
-for bin in "$here"/local/bin/*; do
-  place "$bin" "$HOME/.local/bin/$(basename "$bin")"
-  chmod +x "$HOME/.local/bin/$(basename "$bin")"
-done
-
-echo "Installing Hyprland, fastfetch and foot config..."
-for file in "$here"/hypr/*.lua; do
-  place "$file" "$config/hypr/$(basename "$file")"
-done
-place "$here/fastfetch/config.jsonc" "$config/fastfetch/config.jsonc"
-place "$here/fastfetch/dashboard.py" "$config/fastfetch/dashboard.py"
-place "$here/foot/foot.ini" "$config/foot/foot.ini"
+echo "Installing plugins, helpers, and Hyprland, fastfetch and foot config ($how)..."
+# The bar layout (shell.json) is left for the end: it names the external plugins.
+while IFS=$'\t' read -r src dest; do
+  [[ $src == "$here/omarchy/shell.json" ]] && continue
+  put "$src" "$dest"
+  if [[ $dest == "$HOME/.local/bin/"* ]]; then chmod +x "$dest"; fi
+done < <(linked_paths "$here")
+# Saved drawer state: always copied.
+while IFS=$'\t' read -r src dest; do
+  place "$src" "$dest"
+done < <(copied_paths "$here")
 
 # Touchpad drawer: write its settings file once, from the current values.
 if [[ ! -e "$config/hypr/touchpad-control.lua" ]] &&
@@ -127,7 +155,14 @@ done
 
 # The bar layout goes last: it names the plugins above. Anything that failed
 # to install is left out, and the stock lock screen stays on without Hello Lock.
-place "$here/omarchy/shell.json" "$config/omarchy/shell.json"
+if (( link && ! ${#missing[@]} )); then
+  link_to "$here/omarchy/shell.json" "$config/omarchy/shell.json"
+else
+  # With plugins missing, the layout is edited below, so it gets its own copy
+  # rather than an edited repo file.
+  (( link )) && echo "  shell.json copied, not linked, because some plugins are missing (check-links.sh lists it until you add them and re-run)"
+  place "$here/omarchy/shell.json" "$config/omarchy/shell.json"
+fi
 if (( ${#missing[@]} )); then
   python3 - "$config/omarchy/shell.json" "${missing[@]}" <<'PY'
 import json, sys
@@ -153,5 +188,9 @@ Done. Backups of anything replaced are in:
 EOF
 if (( ${#missing[@]} )); then
   echo "Not installed (left out of the bar): ${missing[*]}"
+fi
+if (( link )); then
+  echo "Linked to $here. After an Omarchy update, run ./check-links.sh to catch files"
+  echo "an update replaced instead of editing through the link."
 fi
 echo 'To put your own name on the menu and fastfetch, see "Make it yours" in the README.'
