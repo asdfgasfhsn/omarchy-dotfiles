@@ -36,7 +36,8 @@ var VERTICAL_CLOCK_FORMATS = [
   "HH\n—\nmm",
   "h\n—\nmm\nAP",
   "dd\nMMM\n'W'ww\n''yy",
-  "HH\nmm"
+  "HH\nmm",
+  "h\nmm"
 ]
 
 function clockFormats(vertical) {

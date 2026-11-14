@@ -31,6 +31,10 @@ BarWidget {
   readonly property string activeFormat: configuredFormat
   readonly property string displayText: formatted(displayDate)
   readonly property var verticalLines: displayText.split("\n")
+  // A two-line vertical format (hour over minutes) is set as one unit: a
+  // heavier hour over lighter minutes, tight together, instead of two
+  // icon-sized slots that read as separate widgets.
+  readonly property bool pairStack: vertical && verticalLines.length === 2
 
   function refresh() {
     displayDate = new Date()
@@ -148,7 +152,9 @@ BarWidget {
     text: root.vertical ? "" : root.displayText
     labelVisible: !root.vertical
     hasVisualContent: root.vertical ? root.verticalLines.length > 0 : text !== ""
-    fixedHeight: root.vertical ? root.verticalLines.length * Style.bar.iconSlot : -1
+    fixedHeight: !root.vertical ? -1
+      : root.pairStack ? Math.round(Style.bar.iconSlot * 1.5)
+      : root.verticalLines.length * Style.bar.iconSlot
     horizontalMargin: 8.75
     verticalPadding: 8.75
 
@@ -159,7 +165,35 @@ BarWidget {
     }
 
     Column {
-      visible: root.vertical
+      visible: root.pairStack
+      anchors.centerIn: parent
+      spacing: -Math.round(button.fontSize * 0.2)
+
+      Text {
+        width: button.width
+        horizontalAlignment: Text.AlignHCenter
+        text: root.verticalLines[0] || ""
+        color: button.foreground
+        font.family: button.fontFamily
+        font.pixelSize: Math.round(button.fontSize * 1.3)
+        font.weight: Font.DemiBold
+        font.features: { "tnum": 1 }
+      }
+      Text {
+        width: button.width
+        horizontalAlignment: Text.AlignHCenter
+        text: root.verticalLines[1] || ""
+        color: button.foreground
+        opacity: 0.68
+        font.family: button.fontFamily
+        font.pixelSize: Math.round(button.fontSize * 1.1)
+        font.weight: Font.Light
+        font.features: { "tnum": 1 }
+      }
+    }
+
+    Column {
+      visible: root.vertical && !root.pairStack
       anchors.fill: parent
 
       Repeater {
