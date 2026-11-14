@@ -5,6 +5,8 @@
 Most plugins in `plugins/` started as clones of Omarchy's built-in shell
 plugins (see `clonedFrom` in each `manifest.json`), including the agent logos
 in `plugins/denon.agents/`. Source: https://github.com/basecamp/omarchy
+`plugins/denon.elsewhen/` is a clone of Omarchy's Elsewhen world clock by
+Jason Fried, under the same MIT license.
 
 ```
 Copyright (c) David Heinemeier Hansson

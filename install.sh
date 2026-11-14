@@ -53,7 +53,7 @@ fi
 if (( ! assume_yes )); then
   cat <<EOF
 This will install into your home folder:
-  - 24 shell plugins       -> ~/.config/omarchy/plugins/
+  - 25 shell plugins       -> ~/.config/omarchy/plugins/
   - bar layout             -> ~/.config/omarchy/shell.json
   - Hyprland look and keys -> ~/.config/hypr/ (monitors.lua is left alone)
   - fastfetch and foot     -> ~/.config/fastfetch/, ~/.config/foot/

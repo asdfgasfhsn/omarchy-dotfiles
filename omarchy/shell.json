@@ -3,45 +3,7 @@
     "centerAnchor": "",
     "id": "denon.shell",
     "layout": {
-      "center": [
-        {
-          "format": "ddd, MMM d  ·  h:mm AP",
-          "formatAlt": "d MMMM 'W'ww yyyy",
-          "id": "denon.clock",
-          "verticalFormat": "h\nmm"
-        },
-        {
-          "id": "omarchy.elsewhen",
-          "cities": [
-            {
-              "name": "Auckland",
-              "zone": "Pacific/Auckland"
-            },
-            {
-              "name": "Los Angeles",
-              "zone": "America/Los_Angeles"
-            },
-            {
-              "name": "New York",
-              "zone": "America/New_York"
-            },
-            {
-              "name": "London",
-              "zone": "Europe/London"
-            },
-            {
-              "name": "Tokyo",
-              "zone": "Asia/Tokyo"
-            }
-          ]
-        },
-        {
-          "id": "denon.weather"
-        },
-        {
-          "id": "omarchy.system-update"
-        }
-      ],
+      "center": [],
       "left": [
         {
           "id": "denon.agents"
@@ -115,7 +77,45 @@
           "alwaysShow": true
         },
         {
+          "id": "omarchy.system-update"
+        },
+        {
+          "id": "denon.elsewhen",
+          "cities": [
+            {
+              "name": "Auckland",
+              "zone": "Pacific/Auckland"
+            },
+            {
+              "name": "Los Angeles",
+              "zone": "America/Los_Angeles"
+            },
+            {
+              "name": "New York",
+              "zone": "America/New_York"
+            },
+            {
+              "name": "London",
+              "zone": "Europe/London"
+            },
+            {
+              "name": "Tokyo",
+              "zone": "Asia/Tokyo"
+            }
+          ],
+          "units": "C"
+        },
+        {
+          "id": "denon.weather"
+        },
+        {
           "id": "denon.corner"
+        },
+        {
+          "format": "ddd, MMM d  ·  h:mm AP",
+          "formatAlt": "d MMMM 'W'ww yyyy",
+          "id": "denon.clock",
+          "verticalFormat": "h\nmm"
         }
       ]
     },

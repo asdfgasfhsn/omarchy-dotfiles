@@ -3,12 +3,12 @@
 <img src="docs/wordmark.svg" alt="My Omarchy Dotfiles" width="700">
 
 <p><strong>My whole Omarchy desktop, ready to install.</strong><br>
-A frosted rail that wraps the screen as one surface, a quarter-circle control corner, a search-first menu, recessed windows and a fastfetch dashboard.</p>
+A frosted rail that wraps the screen as one surface, a Control Center drawer, a Spotlight-style menu, recessed windows and a fastfetch dashboard.</p>
 
 <p>
 <a href="https://omarchy.org"><img alt="Omarchy 4.0.6+ and 4.5" src="https://img.shields.io/badge/omarchy-4.0.6%2B%20%7C%204.5-7AA2F7?style=flat-square"></a>
 <img alt="Hyprland 0.56+" src="https://img.shields.io/badge/hyprland-0.56%2B-1E2330?style=flat-square">
-<img alt="24 plugins" src="https://img.shields.io/badge/shell%20plugins-24-1E2330?style=flat-square">
+<img alt="25 plugins" src="https://img.shields.io/badge/shell%20plugins-25-1E2330?style=flat-square">
 <img alt="Backs up first" src="https://img.shields.io/badge/installer-backs%20up%20first-1E2330?style=flat-square">
 <a href="LICENSE"><img alt="MIT" src="https://img.shields.io/badge/license-MIT-1E2330?style=flat-square"></a>
 </p>
@@ -22,7 +22,7 @@ A frosted rail that wraps the screen as one surface, a quarter-circle control co
 <table align="center">
 <tr>
 <td align="center" width="33%"><h3>One surface</h3>Pebble Shell: the left rail and the screen frame are one frosted piece. Drawers and the menu grow out of it instead of floating on top.</td>
-<td align="center" width="33%"><h3>Everything close</h3>A quarter-circle corner for brightness, volume, mic and toggles, a search-first menu on Super + Space, and drawers for Wi-Fi, sound, power and more.</td>
+<td align="center" width="33%"><h3>Everything close</h3>A Control drawer for toggles, volume, mic and display brightness, a Spotlight-style menu on Super + Space, and drawers for Wi-Fi, sound, power and more.</td>
 <td align="center" width="33%"><h3>Tuned look</h3>Glass and Depth sliders for blur and recessed windows, macOS-style motion, and a theme picker that re-themes everything in one click.</td>
 </tr>
 </table>
@@ -53,7 +53,7 @@ Most of it was made by describing what I wanted to Claude Code, having it show m
 <table>
 <tr>
 <td width="50%" valign="top"><strong>Pebble Shell.</strong><br>The bar is a rail down the left edge that joins the screen frame, blurred as one surface so there's no seam. Workspaces, clock, weather and tray live in it.</td>
-<td width="50%" valign="top"><strong>Control corner.</strong><br>A quarter-circle drawer out of the rail's bottom corner: brightness, volume and mic as arcs, quick toggles, battery and power profile.</td>
+<td width="50%" valign="top"><strong>Control.</strong><br>A Control Center drawer off the rail: six toggle tiles, sound and microphone with their device pickers, display brightness, which monitors are on, power mode, and the battery on a laptop.</td>
 </tr>
 <tr>
 <td width="50%" valign="top"><strong>Search-first menu.</strong><br>Super + Space opens "What do you need?": type to search every Omarchy action, or browse Apps, Style, Setup and the rest. It carries your own name as its title.</td>
@@ -73,12 +73,13 @@ Most of it was made by describing what I wanted to Claude Code, having it show m
 |---|---|
 | `denon.shell` | Pebble Shell: the left rail and screen frame as one frosted surface. This is the bar. |
 | `denon.bar` | Shared drawer and motion code the other panels use (also works as a floating pill bar on its own). |
-| `denon.corner` | Quarter-circle drawer out of the rail's bottom corner: brightness, volume, mic, toggles, battery. |
+| `denon.corner` | Control: toggle tiles, sound and mic (with output and input pickers), display brightness, monitors on or off for the session, power mode and battery, in a drawer off the rail (or the bottom-left hot corner). |
 | `denon.menu` | Search-first desktop menu (Super + Space). |
 | `denon.studio` | One drawer for the look: Glass, Depth, Tricky Tiles and display. |
 | `denon.glass` | Opacity, blur and backdrop controls. |
 | `denon.recess` | Depth: recessed or raised windows, tuned separately for light and dark themes. |
 | `denon.workspaces`, `denon.clock`, `denon.weather`, `denon.tray`, `denon.indicators` | Restyled bar widgets. |
+| `denon.elsewhen` | Omarchy's Elsewhen world clock, opening as a rail drawer like the others. |
 
 **Panels and system UI**
 

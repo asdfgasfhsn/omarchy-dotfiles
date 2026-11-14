@@ -1,10 +1,10 @@
 {
   "schemaVersion": 1,
   "id": "denon.corner",
-  "name": "Control corner",
-  "version": "0.1.0",
+  "name": "Control",
+  "version": "0.2.0",
   "author": "denon",
-  "description": "A quarter-circle control drawer out of the rail's bottom corner: brightness, volume, mic, toggles and battery",
+  "description": "A Control Center drawer off the rail: Wi-Fi, Bluetooth, do not disturb, night light, keep awake and record tiles, sound, microphone and display sliders, power mode and battery",
   "kinds": [
     "bar-widget"
   ],
@@ -12,8 +12,8 @@
     "barWidget": "Corner.qml"
   },
   "barWidget": {
-    "displayName": "Control corner",
-    "description": "Brightness, volume, mic, Wi-Fi, Bluetooth, night light, do not disturb, keep awake and battery",
+    "displayName": "Control",
+    "description": "Toggles, sound, microphone and display levels, power mode and battery",
     "category": "System",
     "allowMultiple": false
   }
