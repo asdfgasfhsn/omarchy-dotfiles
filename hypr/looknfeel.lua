@@ -165,3 +165,8 @@ do local p = os.getenv("HOME") .. "/.config/hypr/glass.lua"; local f = io.open(p
 -- Glass surfaces: also frost xdg popups (tray menus and other bar flyouts that
 -- open as popups); same 0.5 threshold so only the painted card blurs.
 hl.config({ decoration = { blur = { popups = true, popups_ignorealpha = 0.5 } } })
+
+-- Opt another application in to Omarchy's standard transparency.
+-- Find its class with: hyprctl clients
+-- o.transparent_window("my-app")
+-- o.transparent_window("my-app", "0.9 0.85") -- Custom active/inactive opacity.

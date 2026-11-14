@@ -5,13 +5,35 @@
     "layout": {
       "center": [
         {
-          "id": "omarchy.keyboard-layout"
-        },
-        {
-          "format": "ddd, MMM d  \u00b7  h:mm AP",
+          "format": "ddd, MMM d  ·  h:mm AP",
           "formatAlt": "d MMMM 'W'ww yyyy",
           "id": "denon.clock",
           "verticalFormat": "h\nmm\nAP"
+        },
+        {
+          "id": "omarchy.elsewhen",
+          "cities": [
+            {
+              "name": "Auckland",
+              "zone": "Pacific/Auckland"
+            },
+            {
+              "name": "Los Angeles",
+              "zone": "America/Los_Angeles"
+            },
+            {
+              "name": "New York",
+              "zone": "America/New_York"
+            },
+            {
+              "name": "London",
+              "zone": "Europe/London"
+            },
+            {
+              "name": "Tokyo",
+              "zone": "Asia/Tokyo"
+            }
+          ]
         },
         {
           "id": "denon.weather"
@@ -30,13 +52,13 @@
       ],
       "right": [
         {
+          "id": "omarchy.keyboard-layout"
+        },
+        {
           "id": "denon.tray",
           "pinned": [
             "snip"
           ]
-        },
-        {
-          "id": "denon.studio"
         },
         {
           "id": "denon.glass",
@@ -53,6 +75,9 @@
         {
           "id": "denon.monitor",
           "studio": true
+        },
+        {
+          "id": "denon.studio"
         },
         {
           "id": "io.github.denonmaryland.theme-studio"
