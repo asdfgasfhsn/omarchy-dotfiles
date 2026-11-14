@@ -115,7 +115,7 @@
           "format": "ddd, MMM d  ·  h:mm AP",
           "formatAlt": "d MMMM 'W'ww yyyy",
           "id": "denon.clock",
-          "verticalFormat": "h\nmm"
+          "verticalFormat": "HH\nmm"
         }
       ]
     },
