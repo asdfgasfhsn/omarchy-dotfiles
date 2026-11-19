@@ -1,0 +1,20 @@
+{
+  "schemaVersion": 1,
+  "id": "denon.system",
+  "name": "System",
+  "version": "0.1.0",
+  "author": "asdfgasfhsn",
+  "description": "CPU, GPU, memory and disk on the rail: one ring for the busiest of CPU, GPU and memory, a dot for a nearly full disk, and a drawer with the last few minutes of each",
+  "kinds": [
+    "bar-widget"
+  ],
+  "entryPoints": {
+    "barWidget": "Panel.qml"
+  },
+  "barWidget": {
+    "displayName": "System",
+    "description": "CPU, GPU, memory and disk usage",
+    "category": "System",
+    "allowMultiple": false
+  }
+}

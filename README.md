@@ -8,7 +8,7 @@ A frosted rail that wraps the screen as one surface, a Control Center drawer, a 
 <p>
 <a href="https://omarchy.org"><img alt="Omarchy 4.0.6+ and 4.5" src="https://img.shields.io/badge/omarchy-4.0.6%2B%20%7C%204.5-7AA2F7?style=flat-square"></a>
 <img alt="Hyprland 0.56+" src="https://img.shields.io/badge/hyprland-0.56%2B-1E2330?style=flat-square">
-<img alt="25 plugins" src="https://img.shields.io/badge/shell%20plugins-25-1E2330?style=flat-square">
+<img alt="26 plugins" src="https://img.shields.io/badge/shell%20plugins-26-1E2330?style=flat-square">
 <img alt="Backs up first" src="https://img.shields.io/badge/installer-backs%20up%20first-1E2330?style=flat-square">
 <a href="LICENSE"><img alt="MIT" src="https://img.shields.io/badge/license-MIT-1E2330?style=flat-square"></a>
 </p>
@@ -88,6 +88,7 @@ Most of it was made by describing what I wanted to Claude Code, having it show m
 | `denon.audio`, `denon.network`, `denon.bluetooth`, `denon.power`, `denon.monitor`, `denon.touchpad` | Drawers for sound, Wi-Fi, Bluetooth, power, display and touchpad. |
 | `denon.notifications`, `denon.osd`, `denon.polkit`, `denon.battery` | Notifications, on-screen display, password prompt and low-battery warning, restyled to match. |
 | `denon.agents` | Claude Code and Codex usage limits in the bar. Uses your own signed-in CLIs. |
+| `denon.system` | One ring at the top of the rail for the busiest of CPU, GPU and memory, with a dot when a disk is 90% full. Hover for a drawer with per-thread CPU, GPU, memory, disks and their last few minutes; btop is a click away. |
 | `denon.dropbox` | Dropbox sync status. Only useful if you use Dropbox. |
 
 **Installed from their own repos** by `install.sh`:

@@ -6,6 +6,9 @@
       "center": [],
       "left": [
         {
+          "id": "denon.system"
+        },
+        {
           "id": "denon.agents"
         },
         {
