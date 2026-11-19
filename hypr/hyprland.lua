@@ -10,8 +10,28 @@ dofile((os.getenv("OMARCHY_PATH") or "/usr/share/omarchy") .. "/default/hypr/boo
 -- keeping core window-manager bindings:
 -- omarchy_preinstalled_bindings = false
 
--- Load Omarchy defaults.
-require("default.hypr.omarchy")
+-- Omarchy's Quake console refits its gaps on every hop between screens. With
+-- two differently sized screens the gaps change on each hop, and re-applying
+-- them makes the scrolling layout pull the focused window fully into view: a
+-- column you hovered at the shared edge slides the whole row along. Only let
+-- that hook run while the console is open. Opening it still sizes it, through
+-- the console's own workspace.special_active hook.
+do
+  local on = hl.on
+  hl.on = function(event, callback, ...)
+    local source = debug.getinfo(callback, "S").source
+    if event == "monitor.focused" and source:find("qconsole.lua", 1, true) then
+      local inner = callback
+      callback = function(...)
+        local console = hl.get_workspace("special:qconsole")
+        if console and console.visible then return inner(...) end
+      end
+    end
+    return on(event, callback, ...)
+  end
+  require("default.hypr.omarchy")
+  hl.on = on
+end
 
 -- Put your personal overrides in these files. They're loaded after Omarchy's
 -- defaults so package updates can improve the defaults without rewriting your
